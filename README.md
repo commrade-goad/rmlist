@@ -30,7 +30,7 @@ for now to populate ``media`` and ``other-flag`` is needed to edit the ``.rmlist
 ```toml
 media_list_path = ["/home/user/Videos/"]
 ```
-- ``/home/user/Videos/my-cool-playlist``
+- ``/home/user/Videos/my-cool-playlist.rmlist``
 ```toml
 media = ["/home/user/Videos/some-music-video.mp4", "/home/user/Music/some-music.mp3"]
 other_flag = ["--no-video"]
