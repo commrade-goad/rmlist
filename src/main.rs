@@ -45,7 +45,7 @@ fn combine(mlist: &String, path_to_find: &String) -> Result<String, String> {
     }
     let full_path: String = format!("{}{}", path_to_find, p_mlist);
     match path::Path::new(&full_path).is_file() {
-        false => return Err("ERR : the specified file doesnt exist.".to_string()),
+        false => return Err(format!("ERR : the specified file `{full_path}` doesnt exist.")),
         _ => {}
     };
     return Ok(full_path);
@@ -103,12 +103,20 @@ fn main() {
             if mlist_path_char[0] == '/' || mlist_path_char[0] == '.' {
                 play(&prog_args.mlist);
             } else {
-                for path in user_conf.media_list_path {
-                    match combine(&prog_args.mlist, &path) {
+                let mut empty_path:Vec<String> = Vec::new();
+                for i in 0..user_conf.media_list_path.len() {
+                    match combine(&prog_args.mlist, &user_conf.media_list_path[i]) {
                         Ok(val) => {
                             play(&val);
                         }
-                        Err(err) => println!("{err}"),
+                        Err(err) => {
+                            empty_path.push(err);
+                            if i == user_conf.media_list_path.len() - 1{
+                                for j in 0..empty_path.len() {
+                                    println!("{}",empty_path[j]);
+                                }
+                            }
+                        },
                     };
                 }
             }
