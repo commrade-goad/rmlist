@@ -75,11 +75,12 @@ fn play(full_path: &String) {
 }
 
 fn spawn_process(program: String, file: Vec<String>, flag: Vec<String>) {
-    process::Command::new(program)
+    let mut child = process::Command::new(program)
         .args(flag)
         .args(file)
         .spawn()
         .expect("ERR : Failed to spawn the process.");
+    child.wait().expect("ERR : Failed to wait the mpv process");
 }
 
 fn main() {
@@ -115,6 +116,7 @@ fn main() {
                                 for j in 0..empty_path.len() {
                                     println!("{}",empty_path[j]);
                                 }
+                                process::exit(1);
                             }
                         },
                     };
