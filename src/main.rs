@@ -45,7 +45,11 @@ fn combine(mlist: &String, path_to_find: &String) -> Result<String, String> {
     }
     let full_path: String = format!("{}{}", path_to_find, p_mlist);
     match path::Path::new(&full_path).is_file() {
-        false => return Err(format!("ERR : the specified file `{full_path}` doesnt exist.")),
+        false => {
+            return Err(format!(
+                "ERR : the specified file `{full_path}` doesnt exist."
+            ))
+        }
         _ => {}
     };
     return Ok(full_path);
@@ -75,12 +79,13 @@ fn play(full_path: &String) {
 }
 
 fn spawn_process(program: String, file: Vec<String>, flag: Vec<String>) {
-    let mut child = process::Command::new(program)
+    process::Command::new(program)
         .args(flag)
         .args(file)
         .spawn()
-        .expect("ERR : Failed to spawn the process.");
-    child.wait().expect("ERR : Failed to wait the mpv process");
+        .expect("ERR : Failed to spawn the process.")
+        .wait()
+        .expect("WARN : Failed to wait the mpv process");
 }
 
 fn main() {
@@ -104,7 +109,7 @@ fn main() {
             if mlist_path_char[0] == '/' || mlist_path_char[0] == '.' {
                 play(&prog_args.mlist);
             } else {
-                let mut empty_path:Vec<String> = Vec::new();
+                let mut empty_path: Vec<String> = Vec::new();
                 for i in 0..user_conf.media_list_path.len() {
                     match combine(&prog_args.mlist, &user_conf.media_list_path[i]) {
                         Ok(val) => {
@@ -112,13 +117,13 @@ fn main() {
                         }
                         Err(err) => {
                             empty_path.push(err);
-                            if i == user_conf.media_list_path.len() - 1{
+                            if i == user_conf.media_list_path.len() - 1 {
                                 for j in 0..empty_path.len() {
-                                    println!("{}",empty_path[j]);
+                                    println!("{}", empty_path[j]);
                                 }
                                 process::exit(1);
                             }
-                        },
+                        }
                     };
                 }
             }
