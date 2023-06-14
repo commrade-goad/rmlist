@@ -108,24 +108,22 @@ fn main() {
             let mlist_path_char: Vec<char> = prog_args.mlist.chars().collect();
             if mlist_path_char[0] == '/' || mlist_path_char[0] == '.' {
                 play(&prog_args.mlist);
-            } else {
-                let mut empty_path: Vec<String> = Vec::new();
-                for i in 0..user_conf.media_list_path.len() {
-                    match combine(&prog_args.mlist, &user_conf.media_list_path[i]) {
-                        Ok(val) => {
-                            play(&val);
-                        }
-                        Err(err) => {
-                            empty_path.push(err);
-                            if i == user_conf.media_list_path.len() - 1 {
-                                for j in 0..empty_path.len() {
-                                    println!("{}", empty_path[j]);
-                                }
-                                process::exit(1);
+                return;
+            }
+            let mut empty_path: Vec<String> = Vec::new();
+            for i in 0..user_conf.media_list_path.len() {
+                match combine(&prog_args.mlist, &user_conf.media_list_path[i]) {
+                    Ok(val) => play(&val),
+                    Err(err) => {
+                        empty_path.push(err);
+                        if i == user_conf.media_list_path.len() - 1 {
+                            for j in 0..empty_path.len() {
+                                println!("{}", empty_path[j]);
                             }
+                            process::exit(1);
                         }
-                    };
-                }
+                    }
+                };
             }
         }
         Mode::Create => {
