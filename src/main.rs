@@ -131,7 +131,13 @@ fn main() {
             if !p_mlist.contains(".rmlist") {
                 p_mlist.push_str(".rmlist");
             }
-            create_rmlist(&p_mlist);
+            match create_rmlist(&p_mlist) {
+                Ok(()) => {},
+                Err(err) => {
+                    println!("{}",err);
+                    process::exit(1);
+                }
+            }
             println!("WARN : Created the template rmlist file at `{p_mlist}`");
         }
     }

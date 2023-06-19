@@ -30,8 +30,7 @@ pub fn get_configuration() -> Result<Config, String> {
                 Ok(_) => {}
                 Err(err) => return Err(err.to_string()),
             };
-            println!("WARN : Created the config file.");
-            return Err("WARN : Exiting..".to_string());
+            return Err("WARN : Created the config file.".to_string());
         }
         true => {
             let contents: String = match fs::read_to_string(path_to_conf) {
@@ -75,11 +74,11 @@ pub fn get_rmlist_configuration(path_to_rmlist: String) -> Result<RmlistConfig, 
     }
 }
 
-pub fn create_rmlist(path_to_rmlist: &String) {
+pub fn create_rmlist(path_to_rmlist: &String) -> Result<(), String>{
     let mut create_config: fs::File =
         fs::File::create(&path_to_rmlist).expect("WARN : Error encountered while creating file!");
     match create_config.write_all(b"media = []\nother_flag = []") {
-        Ok(_) => {}
-        Err(_) => println!("ERR : Failed to create the rmlist at `{}`", path_to_rmlist),
+        Ok(_) => return Ok(()),
+        Err(_) => return Err(format!("ERR : Failed to create the rmlist at `{}`", path_to_rmlist)),
     }
 }
