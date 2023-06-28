@@ -14,6 +14,8 @@ struct Arguments {
     mlist: String,
 }
 
+const MEDIA_PLAYER:&str = "/usr/bin/mpv";
+
 fn get_args() -> Result<Arguments, String> {
     let user_args: Vec<String> = env::args().collect();
     if user_args.len() < 2 {
@@ -56,7 +58,7 @@ fn combine(mlist: &String, path_to_find: &String) -> Result<String, String> {
 }
 
 fn play(full_path: &String) {
-    let rmlist_content: RmlistConfig = match get_rmlist_configuration(full_path.to_string()) {
+    let rmlist_content: RmlistConfig = match get_rmlist_configuration(full_path) {
         Ok(val) => val,
         Err(err) => {
             println!("{err}");
@@ -72,13 +74,13 @@ fn play(full_path: &String) {
         }
     }
     spawn_process(
-        "/usr/bin/mpv".to_string(),
+        MEDIA_PLAYER,
         rmlist_content.media,
         rmlist_content.other_flag,
     );
 }
 
-fn spawn_process(program: String, file: Vec<String>, flag: Vec<String>) {
+fn spawn_process(program: &str, file: Vec<String>, flag: Vec<String>) {
     process::Command::new(program)
         .args(flag)
         .args(file)

@@ -55,7 +55,7 @@ pub fn get_configuration() -> Result<Config, String> {
     }
 }
 
-pub fn get_rmlist_configuration(path_to_rmlist: String) -> Result<RmlistConfig, String> {
+pub fn get_rmlist_configuration(path_to_rmlist: &str) -> Result<RmlistConfig, String> {
     match path::Path::new(&path_to_rmlist).is_file() {
         true => {
             let contents: String = match fs::read_to_string(path_to_rmlist) {
