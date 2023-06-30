@@ -74,11 +74,16 @@ pub fn get_rmlist_configuration(path_to_rmlist: &str) -> Result<RmlistConfig, St
     }
 }
 
-pub fn create_rmlist(path_to_rmlist: &String) -> Result<(), String>{
+pub fn create_rmlist(path_to_rmlist: &String) -> Result<(), String> {
     let mut create_config: fs::File =
         fs::File::create(&path_to_rmlist).expect("WARN : Error encountered while creating file!");
     match create_config.write_all(b"media = []\nother_flag = []") {
         Ok(_) => return Ok(()),
-        Err(_) => return Err(format!("ERR : Failed to create the rmlist at `{}`", path_to_rmlist)),
+        Err(_) => {
+            return Err(format!(
+                "ERR : Failed to create the rmlist at `{}`",
+                path_to_rmlist
+            ))
+        }
     }
 }

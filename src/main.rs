@@ -14,7 +14,7 @@ struct Arguments {
     mlist: String,
 }
 
-const MEDIA_PLAYER:&str = "/usr/bin/mpv";
+const MEDIA_PLAYER: &str = "/usr/bin/mpv";
 
 fn get_args() -> Result<Arguments, String> {
     let user_args: Vec<String> = env::args().collect();
@@ -24,13 +24,13 @@ fn get_args() -> Result<Arguments, String> {
         return Err("ERR : Didnt get any rmlist file name.".to_string());
     }
     match &user_args[1][..] {
-        "play" => {
+        "play" | "p" => {
             return Ok(Arguments {
                 mode: Mode::Play,
                 mlist: user_args[2].clone(),
             })
         }
-        "create" => {
+        "create" | "c" => {
             return Ok(Arguments {
                 mode: Mode::Create,
                 mlist: user_args[2].clone(),
@@ -90,11 +90,21 @@ fn spawn_process(program: &str, file: Vec<String>, flag: Vec<String>) {
         .expect("WARN : Failed to wait the mpv process");
 }
 
+fn print_help() {
+    println!("USAGE :");
+    println!("* Play rmlist:");
+    println!("    rmlist play file  or  rmlist p file");
+    println!("    rmlist play /path/to/file.rmlist  or  rmlist p /path/to/file.rmlist");
+    println!("* Create rmlist file:");
+    println!("    rmlist create /path/to/file  or  rmlist c /path/to/file");
+}
+
 fn main() {
     let prog_args: Arguments = match get_args() {
         Ok(val) => val,
         Err(err) => {
             println!("{err}");
+            print_help();
             process::exit(1);
         }
     };
@@ -102,6 +112,7 @@ fn main() {
         Ok(val) => val,
         Err(err) => {
             println!("{err}");
+            print_help();
             process::exit(1);
         }
     };
@@ -119,13 +130,12 @@ fn main() {
                     Err(err) => {
                         empty_path.push(err);
                         if i == user_conf.media_list_path.len() - 1 {
-                            for j in 0..empty_path.len() {
-                                println!("{}", empty_path[j]);
-                            }
+                            empty_path.iter().for_each(|val| println!("{val}"));
+                            print_help();
                             process::exit(1);
                         }
                     }
-                };
+                }
             }
         }
         Mode::Create => {
@@ -134,9 +144,10 @@ fn main() {
                 p_mlist.push_str(".rmlist");
             }
             match create_rmlist(&p_mlist) {
-                Ok(()) => {},
+                Ok(()) => {}
                 Err(err) => {
-                    println!("{}",err);
+                    println!("{}", err);
+                    print_help();
                     process::exit(1);
                 }
             }
