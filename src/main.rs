@@ -3,6 +3,7 @@ use config::{create_rmlist, get_configuration, get_rmlist_configuration, Config,
 use std::env;
 use std::path;
 use std::process;
+use std::fs;
 
 enum Mode {
     Play,
@@ -58,19 +59,32 @@ fn combine(mlist: &String, path_to_find: &String) -> Result<String, String> {
 }
 
 fn play(full_path: &String) {
-    let rmlist_content: RmlistConfig = match get_rmlist_configuration(full_path) {
+    let mut rmlist_content: RmlistConfig = match get_rmlist_configuration(full_path) {
         Ok(val) => val,
         Err(err) => {
             println!("{err}");
             return;
         }
     };
-    for media in &rmlist_content.media {
-        if !&media.contains("https://") {
-            match path::Path::new(&media).is_file() {
-                false => println!("WARN : `{media}` doesnt exist. Skipping..."),
+    for index in 0..rmlist_content.media.len() {
+        if !&rmlist_content.media[index].contains("https://") {
+            match path::Path::new(&rmlist_content.media[index]).is_file() {
+                false => println!("WARN : `{}` doesnt exist. Skipping...", rmlist_content.media[index]),
                 _ => {}
             }
+        } else if path::Path::new(&rmlist_content.media[index]).is_dir() {
+            match fs::read_dir(&rmlist_content.media[index]) {
+                Ok(val) => {
+                    let tmp_vec: fs::ReadDir = val;
+                    for file in tmp_vec {
+                        rmlist_content.media.push(file.unwrap().path().display().to_string());
+                    }
+                },
+                Err(_) => {
+                    println!("WARN : `{}` folder doesnt exist. Skipping...", rmlist_content.media[index]);
+                },
+            }
+            rmlist_content.media.remove(index);
         }
     }
     spawn_process(
@@ -131,7 +145,6 @@ fn main() {
                         empty_path.push(err);
                         if i == user_conf.media_list_path.len() - 1 {
                             empty_path.iter().for_each(|val| println!("{val}"));
-                            print_help();
                             process::exit(1);
                         }
                     }
@@ -147,7 +160,6 @@ fn main() {
                 Ok(()) => {}
                 Err(err) => {
                     println!("{}", err);
-                    print_help();
                     process::exit(1);
                 }
             }

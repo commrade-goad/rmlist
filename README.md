@@ -2,7 +2,7 @@
 a simple command line program that can read ``.rmlist`` file to play playlist of media using mpv
 
 ## BUILD
-```sh
+``` sh
 $ cargo build --release
 ```
 
