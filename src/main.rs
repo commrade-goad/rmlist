@@ -67,25 +67,24 @@ fn play(full_path: &String) {
         }
     };
     for index in 0..rmlist_content.media.len() {
-        if !&rmlist_content.media[index].contains("https://") {
-            match path::Path::new(&rmlist_content.media[index]).is_file() {
-                false => println!("WARN : `{}` doesnt exist. Skipping...", rmlist_content.media[index]),
-                _ => {}
+        if !&rmlist_content.media[index].contains("https://") || !&rmlist_content.media[index].contains("http://") {
+            if path::Path::new(&rmlist_content.media[index]).is_dir() {
+                match fs::read_dir(&rmlist_content.media[index]) {
+                    Ok(val) => {
+                        let tmp_vec: fs::ReadDir = val;
+                        for file in tmp_vec {
+                            rmlist_content.media.push(file.unwrap().path().display().to_string());
+                        }
+                    },
+                    Err(_) => {
+                        println!("WARN : `{}` folder doesnt exist. Skipping...", rmlist_content.media[index]);
+                    },
+                }
+                rmlist_content.media.remove(index);
+            } else if !path::Path::new(&rmlist_content.media[index]).is_file() {
+                println!("WARN : `{}` doesnt exist. Skipping...", rmlist_content.media[index]);
             }
-        } else if path::Path::new(&rmlist_content.media[index]).is_dir() {
-            match fs::read_dir(&rmlist_content.media[index]) {
-                Ok(val) => {
-                    let tmp_vec: fs::ReadDir = val;
-                    for file in tmp_vec {
-                        rmlist_content.media.push(file.unwrap().path().display().to_string());
-                    }
-                },
-                Err(_) => {
-                    println!("WARN : `{}` folder doesnt exist. Skipping...", rmlist_content.media[index]);
-                },
-            }
-            rmlist_content.media.remove(index);
-        }
+        } 
     }
     spawn_process(
         MEDIA_PLAYER,
