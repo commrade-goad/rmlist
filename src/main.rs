@@ -81,7 +81,6 @@ fn play(full_path: &String) {
                         println!("WARN : `{}` folder doesnt exist. Skipping...", rmlist_content.media[index]);
                     },
                 }
-                all_files.remove(index);
             } else if !path::Path::new(&rmlist_content.media[index]).is_file() {
                 println!("WARN : `{}` doesnt exist. Skipping...", rmlist_content.media[index]);
                 if all_files.len() > 1 {
