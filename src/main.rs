@@ -59,13 +59,14 @@ fn combine(mlist: &String, path_to_find: &String) -> Result<String, String> {
 }
 
 fn play(full_path: &String) {
-    let mut rmlist_content: RmlistConfig = match get_rmlist_configuration(full_path) {
+    let rmlist_content: RmlistConfig = match get_rmlist_configuration(full_path) {
         Ok(val) => val,
         Err(err) => {
             println!("{err}");
             return;
         }
     };
+    let mut all_files: Vec<String> = Vec::new();
     for index in 0..rmlist_content.media.len() {
         if !&rmlist_content.media[index].contains("https://") || !&rmlist_content.media[index].contains("http://") {
             if path::Path::new(&rmlist_content.media[index]).is_dir() {
@@ -73,24 +74,31 @@ fn play(full_path: &String) {
                     Ok(val) => {
                         let tmp_vec: fs::ReadDir = val;
                         for file in tmp_vec {
-                            rmlist_content.media.push(file.unwrap().path().display().to_string());
+                            all_files.push(file.unwrap().path().display().to_string());
                         }
                     },
                     Err(_) => {
                         println!("WARN : `{}` folder doesnt exist. Skipping...", rmlist_content.media[index]);
                     },
                 }
-                rmlist_content.media.remove(index);
+                all_files.remove(index);
             } else if !path::Path::new(&rmlist_content.media[index]).is_file() {
                 println!("WARN : `{}` doesnt exist. Skipping...", rmlist_content.media[index]);
+                if all_files.len() > 1 {
+                    all_files.remove(index);
+                }
+            } else {
+                all_files.push(rmlist_content.media[index].clone());
             }
         } 
     }
-    spawn_process(
-        MEDIA_PLAYER,
-        rmlist_content.media,
-        rmlist_content.other_flag,
-    );
+    if all_files.len() > 1 {
+        spawn_process(
+            MEDIA_PLAYER,
+            all_files,
+            rmlist_content.other_flag,
+        );
+    }
 }
 
 fn spawn_process(program: &str, file: Vec<String>, flag: Vec<String>) {
@@ -100,7 +108,7 @@ fn spawn_process(program: &str, file: Vec<String>, flag: Vec<String>) {
         .spawn()
         .expect("ERR : Failed to spawn the process.")
         .wait()
-        .expect("WARN : Failed to wait the mpv process");
+        .expect("WARN : Failed to wait for the process");
 }
 
 fn print_help() {
